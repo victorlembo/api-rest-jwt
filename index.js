@@ -1,11 +1,10 @@
 const express = require("express");
+const app = express();
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 
-const app = express();
-
-const JWTSecret = "dasdasdsadasdasdsaadasdas";
+const JWTSecret = "djkshahjksdajksdhasjkdhasjkdhasjkdhasjkd";
 
 app.use(cors());
 
@@ -17,28 +16,23 @@ function auth(req, res, next) {
 
   if (authToken != undefined) {
     const bearer = authToken.split(" ");
-
     var token = bearer[1];
 
     jwt.verify(token, JWTSecret, (err, data) => {
       if (err) {
         res.status(401);
-        res.json({ err: "Token invalido" });
+        res.json({ err: "Token inválido!" });
       } else {
         req.token = token;
-        req.loggedUser = {
-          id: data.id,
-          email: data.email,
-        };
-        console.log(data);
+        req.loggedUser = { id: data.id, email: data.email };
+
+        next();
       }
     });
   } else {
     res.status(401);
-    res.json({ err: "Token invalido" });
+    res.json({ err: "Token inválido!" });
   }
-
-  next();
 }
 
 var FAKEDB = {
@@ -68,21 +62,21 @@ var FAKEDB = {
       id: 1,
       name: "User Example",
       email: "user@example.com",
-      pass: 1234,
+      password: 1234,
     },
 
     {
       id: 2,
       name: "User Example2",
       email: "user@example2.com",
-      pass: 5678,
+      password: 5678,
     },
   ],
 };
 
 app.get("/games", auth, (req, res) => {
   res.statusCode = 200;
-  res.json({ user: req.loggedUser, games: FAKEDB.games });
+  res.json(FAKEDB.games);
 });
 
 app.get("/game/:id", auth, (req, res) => {
@@ -149,17 +143,16 @@ app.delete("/game/:id", auth, (req, res) => {
 });
 
 app.post("/auth", (req, res) => {
-  var { email, pass } = req.body;
+  var { email, password } = req.body;
+
   if (email != undefined) {
     var user = FAKEDB.users.find((u) => u.email == email);
     if (user != undefined) {
-      if (user.pass == pass) {
+      if (user.password == password) {
         jwt.sign(
           { id: user.id, email: user.email },
           JWTSecret,
-          {
-            expiresIn: "48h",
-          },
+          { expiresIn: "48h" },
           (err, token) => {
             if (err) {
               res.status(400);
@@ -172,15 +165,15 @@ app.post("/auth", (req, res) => {
         );
       } else {
         res.status(401);
-        res.json({ err: "Credenciais invalidas" });
+        res.json({ err: "  Credenciais inválidas!" });
       }
     } else {
       res.status(404);
-      res.json({ err: "Email inexistente" });
+      res.json({ err: "O E-mail enviado não existe na base de dados!" });
     }
   } else {
     res.status(400);
-    res.json({ err: "Email invalido!" });
+    res.send({ err: "O E-mail enviado é inválido" });
   }
 });
 
