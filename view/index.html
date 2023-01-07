@@ -127,7 +127,7 @@
         });
     }
 
-    function loadFom(listItem) {
+    function loadForm(listItem) {
       var id = listItem.getAttribute("data-id");
       var title = listItem.getAttribute("data-title");
       var year = listItem.getAttribute("data-year");
@@ -190,7 +190,7 @@
           var putBtn = document.createElement("button");
           putBtn.innerHTML = "Editar";
           putBtn.addEventListener("click", function () {
-            loadFom(item);
+            loadForm(item);
           });
 
           item.appendChild(putBtn);
